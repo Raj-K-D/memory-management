@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Management Simulator - Advanced DSA Visualization</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    
+
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-memory"></i>
+                    <div>
+                        <h1>Memory Management Simulator</h1>
+                        <p class="subtitle">Advanced DSA Visualization Tool</p>
+                    </div>
+                </div>
+                <div>
+                    <button class="btn-outline" onclick="exportData()">
+                        <i class="fas fa-download"></i> Export Data
+                    </button>
+                </div>
+            </div>
+            <div class="nav-tabs">
+                <button class="tab active" onclick="switchTab('simulator')">
+                    <i class="fas fa-desktop"></i> Simulator
+                </button>
+                <button class="tab" onclick="switchTab('comparison')">
+                    <i class="fas fa-chart-bar"></i> Algorithm Comparison
+                </button>
+                <button class="tab" onclick="switchTab('history')">
+                    <i class="fas fa-history"></i> History
+                </button>
+                <button class="tab" onclick="switchTab('help')">
+                    <i class="fas fa-question-circle"></i> Help
+                </button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="control-panel">
+                <div class="section">
+                    <div class="section-title">
+                        <i class="fas fa-cog"></i>
+                        <span>Initialize Memory</span>
+                    </div>
+                    <div class="input-group">
+                        <label>Total Memory Size (KB)</label>
+                        <input type="number" id="memorySize" value="1024" min="100">
+                    </div>
+                    <div class="input-group">
+                        <label>Number of Blocks</label>
+                        <input type="number" id="numBlocks" value="5" min="2" max="10">
+                    </div>
+                    <button onclick="initializeMemory()">
+                        <i class="fas fa-play"></i> Initialize Memory
+                    </button>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <i class="fas fa-microchip"></i>
+                        <span>Allocation Algorithm</span>
+                    </div>
+                    <div class="input-group">
+                        <label>Select Algorithm</label>
+                        <select id="algorithm">
+                            <option value="first-fit">First Fit</option>
+                            <option value="best-fit">Best Fit</option>
+                            <option value="worst-fit">Worst Fit</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Allocate Process</span>
+                    </div>
+                    <div class="input-group">
+                        <label>Process Name</label>
+                        <input type="text" id="processName" placeholder="e.g., P1">
+                    </div>
+                    <div class="input-group">
+                        <label>Process Size (KB)</label>
+                        <input type="number" id="processSize" placeholder="e.g., 100" min="1">
+                    </div>
+                    <button class="btn-secondary" onclick="allocateProcess()">
+                        <i class="fas fa-plus"></i> Allocate Process
+                    </button>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <i class="fas fa-magic"></i>
+                        <span>Quick Presets</span>
+                    </div>
+                    <div class="preset-buttons">
+                        <button class="preset-btn" onclick="loadPreset('small')">
+                            <i class="fas fa-compress"></i> Small System
+                        </button>
+                        <button class="preset-btn" onclick="loadPreset('medium')">
+                            <i class="fas fa-expand"></i> Medium System
+                        </button>
+                        <button class="preset-btn" onclick="loadPreset('large')">
+                            <i class="fas fa-expand-arrows-alt"></i> Large System
+                        </button>
+                        <button class="preset-btn" onclick="loadPreset('fragmented')">
+                            <i class="fas fa-broken-image"></i> Fragmented
+                        </button>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <button class="btn-danger" onclick="resetMemory()">
+                        <i class="fas fa-trash"></i> Reset All
+                    </button>
+                </div>
+            </div>
+
+            <div class="visualization-area">
+                <div id="message"></div>
+                
+                <!-- Simulator Tab -->
+                <div id="simulator-tab" class="tab-content active">
+                    <div class="memory-display">
+                        <div class="section-title">
+                            <i class="fas fa-memory"></i>
+                            <span>Memory Blocks</span>
+                        </div>
+                        <div class="visualization-options">
+                            <button class="view-toggle active" onclick="toggleView('blocks')">Block View</button>
+                            <button class="view-toggle" onclick="toggleView('visual')">Visual View</button>
+                        </div>
+                        <div id="blocks-view" class="memory-blocks"></div>
+                        <div id="visual-view" class="memory-visual" style="display: none;"></div>
+                    </div>
+
+                    <div class="process-display">
+                        <div class="section-title">
+                            <i class="fas fa-tasks"></i>
+                            <span>Allocated Processes</span>
+                        </div>
+                        <div class="process-list" id="processList"></div>
+                    </div>
+
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="usedMemory">0</div>
+                            <div class="stat-label">Used Memory (KB)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="freeMemory">0</div>
+                            <div class="stat-label">Free Memory (KB)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="fragmentation">0</div>
+                            <div class="stat-label">External Fragmentation</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="utilization">0%</div>
+                            <div class="stat-label">Memory Utilization</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Algorithm Comparison Tab -->
+                <div id="comparison-tab" class="tab-content">
+                    <div class="algorithm-comparison">
+                        <div class="section-title">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Algorithm Performance Comparison</span>
+                        </div>
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Algorithm</th>
+                                    <th>Time Complexity</th>
+                                    <th>Space Efficiency</th>
+                                    <th>Best For</th>
+                                    <th>Worst For</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>First Fit</strong></td>
+                                    <td>O(n)</td>
+                                    <td>Good</td>
+                                    <td>Fast allocation</td>
+                                    <td>External fragmentation</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Best Fit</strong></td>
+                                    <td>O(n)</td>
+                                    <td>Excellent</td>
+                                    <td>Small processes</td>
+                                    <td>Slow allocation</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Worst Fit</strong></td>
+                                    <td>O(n)</td>
+                                    <td>Fair</td>
+                                    <td>Large processes</td>
+                                    <td>Memory waste</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="algorithm-comparison">
+                        <div class="section-title">
+                            <i class="fas fa-play-circle"></i>
+                            <span>Test All Algorithms</span>
+                        </div>
+                        <button class="btn-secondary" onclick="compareAlgorithms()">
+                            <i class="fas fa-flask"></i> Run Comparison Test
+                        </button>
+                        <div id="comparison-results" style="margin-top: 20px;"></div>
+                    </div>
+                </div>
+
+                <!-- History Tab -->
+                <div id="history-tab" class="tab-content">
+                    <div class="history-timeline">
+                        <div class="section-title">
+                            <i class="fas fa-history"></i>
+                            <span>Operation History</span>
+                        </div>
+                        <div class="timeline" id="history-timeline"></div>
+                    </div>
+                </div>
+
+                <!-- Help Tab -->
+                <div id="help-tab" class="tab-content">
+                    <div class="help-section">
+                        <div class="section-title">
+                            <i class="fas fa-question-circle"></i>
+                            <span>Frequently Asked Questions</span>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <div class="faq-question">What is memory management?</div>
+                            <div class="faq-answer">
+                                Memory management is the process of controlling and coordinating computer memory, assigning portions called blocks to various running programs to optimize overall system performance.
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <div class="faq-question">What's the difference between the algorithms?</div>
+                            <div class="faq-answer">
+                                First Fit allocates the first sufficient block, Best Fit finds the smallest sufficient block, and Worst Fit allocates the largest sufficient block. Each has different trade-offs in terms of speed and efficiency.
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <div class="faq-question">What is external fragmentation?</div>
+                            <div class="faq-answer">
+                                External fragmentation occurs when free memory is broken into small, non-contiguous blocks. Even if the total free memory is sufficient, a process might not be allocated if no single block is large enough.
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <div class="faq-question">How do I use the simulator?</div>
+                            <div class="faq-answer">
+                                First, initialize memory with your desired size and block count. Then select an allocation algorithm and add processes with specific sizes. You can deallocate processes at any time and observe how memory is managed.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    
+</body>
+</html>
